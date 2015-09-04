@@ -5,9 +5,11 @@ class Player
   attr_reader :name, :hand
 
   def <=>(another)
-    if self.hand == 'r' && another.hand == 's' || self.hand == 'p' && another.hand == 'r' || self.hand == 's' && another.hand == 'p'
+    if hand == 'r' && another.hand == 's' ||
+       hand == 'p' && another.hand == 'r' ||
+       hand == 's' && another.hand == 'p'
       1
-    elsif self.hand == another.hand
+    elsif hand == another.hand
       0
     else
       -1
@@ -25,10 +27,11 @@ class Human < Player
   end
 
   def initialize(player_name = nil)
-    @name = player_name ? player_name : get_name
+    @name = get_name(player_name)
   end
 
-  def get_name
+  def get_name(player_name)
+    return player_name if player_name
     system 'clear' or system 'cls'
     print "Enter your name: "
     gets.chomp
@@ -49,7 +52,7 @@ class Game
   attr_reader :human, :computer
 
   def initialize(player_name = nil)
-    @human = player_name ? Human.new(player_name) : Human.new
+    @human = Human.new(player_name)
     @computer = Computer.new
   end
 
@@ -58,7 +61,7 @@ class Game
       "It's a tie!"
     elsif human > computer
       human
-    else human < computer
+    else
       computer
     end
   end
@@ -66,7 +69,7 @@ class Game
   def play
     [human, computer].each {|player| player.pick_hand}
     winner = compare_hands
-    puts winner == "It's a tie!" ? winner : game_recap(winner)
+    puts winner.is_a?(String) ? winner : game_recap(winner)
     puts "#{winner.name} wins!" if defined?(winner.name)
     replay
   end
