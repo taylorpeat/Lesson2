@@ -1,11 +1,8 @@
-require 'pry'
 class Player
   include Comparable
 
   HANDS = ['r', 'p', 's']
-
-  attr_accessor :hand
-  attr_reader :name
+  attr_reader :name, :hand
 
   def <=>(another)
     if self.hand == 'r' && another.hand == 's' || self.hand == 'p' && another.hand == 'r' || self.hand == 's' && another.hand == 'p'
@@ -49,7 +46,7 @@ class Computer < Player
 end
 
 class Game
-  attr_accessor :human, :computer
+  attr_reader :human, :computer
 
   def initialize(player_name = nil)
     @human = player_name ? Human.new(player_name) : Human.new
@@ -79,8 +76,6 @@ class Game
     when 'r' then "Rock smashes scissors!"
     when 'p' then "Paper wraps rock!"
     when 's' then "Scissors cuts paper!"
-    else
-      "It's a tie!"
     end
   end
 
