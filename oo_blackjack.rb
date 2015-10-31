@@ -237,7 +237,6 @@ class Game
   def initial_game_setup
     get_wager
     deal_initial_cards
-    binding.pry
     update_display
   end
 
