@@ -96,18 +96,18 @@ class Card
   def update_card_symbols
     suit_symbol = determine_suit_symbol
     case card_name
-      when "2" then c2 = c7 = suit_symbol
-      when "3" then c9 = c10 = suit_symbol
-      when "4" then c4 = suit_symbol
-      when "5" then c4 = c9 = suit_symbol
-      when "6" then c6 = suit_symbol
-      when "7" then c6 = c7 = suit_symbol
-      when "8" then c4 = c8 = suit_symbol
-      when "9" then c4 = c8 = c9 = suit_symbol
-      when "10"
-        c4 = c8 = c10 = suit_symbol
-        n10 = ""
-      when "J", "Q", "K", "A" then c9 = suit_symbol
+    when "2" then c2 = c7 = suit_symbol
+    when "3" then c9 = c10 = suit_symbol
+    when "4" then c4 = suit_symbol
+    when "5" then c4 = c9 = suit_symbol
+    when "6" then c6 = suit_symbol
+    when "7" then c6 = c7 = suit_symbol
+    when "8" then c4 = c8 = suit_symbol
+    when "9" then c4 = c8 = c9 = suit_symbol
+    when "10"
+      c4 = c8 = c10 = suit_symbol
+      n10 = ""
+    when "J", "Q", "K", "A" then c9 = suit_symbol
     end
     [suit_symbol, c2, c4, c6, c7, c8, c9, c10, n10].map! { |symbol| symbol ||= " " }
   end
@@ -175,7 +175,7 @@ class SplitHand
 
   def initialize(wager)
     @wager = wager
-    super
+    super()
   end
 end
 
@@ -304,14 +304,16 @@ class Game
 
   def determine_valid_plays
     valid_plays = %w(Hit Stand)
-    valid_plays << "Split" if current_player.cards.length == 2 &&
-                              current_player.cards.all? do |card|
-                                card.card_name == current_player.cards.first.card_name
-                              end &&
-                              player.balance > current_player.wager &&
-                              player_hands.size < 4
-    valid_plays << "Double" if current_player.cards.length == 2 &&
-                               player.balance > current_player.wager
+    if current_player.cards.length == 2 &&
+       current_player.cards.all? do |card|
+         card.card_name == current_player.cards.first.card_name
+       end &&
+       player.balance > current_player.wager && player_hands.size < 4
+      valid_plays << "Split"
+    end
+    if current_player.cards.length == 2 && player.balance > current_player.wager
+      valid_plays << "Double" 
+    end
     valid_plays
   end
 
