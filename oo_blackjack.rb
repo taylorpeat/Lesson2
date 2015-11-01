@@ -114,10 +114,10 @@ class Card
 
   def determine_suit_symbol
     case suit
-      when :spades then "\u2660"
-      when :clubs then "\u2663"
-      when :hearts then "\u2665"
-      when :diamonds then "\u2666"
+    when :spades then "\u2660"
+    when :clubs then "\u2663"
+    when :hearts then "\u2665"
+    when :diamonds then "\u2666"
     end
   end
 
@@ -129,14 +129,15 @@ class Deck
   VALUES = [["2", 2], ["3", 3], ["4", 4], ["5", 5], ["6", 6], ["7", 7], ["8", 8], ["9", 9],
           ["10", 10], ["J", 10], ["Q", 10], ["K", 10], ["A", 11]]
   
-  attr_accessor :cards
+  attr_reader :cards
 
   def initialize
     @cards = create_deck
   end
 
   def create_deck
-    deck = SUITS.product(VALUES).each { |card| card.flatten! }.map! { |card_values| Card.new(card_values) }
+    deck = SUITS.product(VALUES).each { |card| card.flatten! }.map!\
+           { |card_values| Card.new(card_values) }
     deck.shuffle!
   end
 
@@ -174,7 +175,7 @@ class SplitHand
 
   def initialize(wager)
     @wager = wager
-    super()
+    super
   end
 end
 
@@ -213,7 +214,7 @@ class Game
 
   def get_name
     loop do 
-      system 'clear' or system 'cls'
+      clear_screen
       puts "Welcome to Tealeaf Blackjack"
       print "\nPlease enter your name: "
       new_name = gets.chomp
@@ -246,7 +247,7 @@ class Game
   end
 
   def get_wager
-    system 'clear' or system 'cls'
+    clear_screen
     display_top_line   
     print "\nHow much would you like to wager: "
     receive_wager_input
@@ -304,8 +305,9 @@ class Game
   def determine_valid_plays
     valid_plays = %w(Hit Stand)
     valid_plays << "Split" if current_player.cards.length == 2 &&
-                              current_player.cards.all? {|card| card.card_name ==
-                              current_player.cards.first.card_name } &&
+                              current_player.cards.all? do |card|
+                                card.card_name == current_player.cards.first.card_name
+                              end &&
                               player.balance > current_player.wager &&
                               player_hands.size < 4
     valid_plays << "Double" if current_player.cards.length == 2 &&
@@ -366,13 +368,13 @@ class Game
   def dealers_turn
     loop do
       update_display
-      break if player_doesnt_care? 
+      break if never_reveal_dealer_card? 
       sleep 1
       hit(dealer)
     end
   end
 
-  def player_doesnt_care?
+  def never_reveal_dealer_card?
     player_hands.all? { |hand| hand.hand_value > BLACKJACK } ||
     player_hands.all? { |hand| hand.hand_value == BLACKJACK && hand.cards.length == 2} &&
     dealer.hand_value < BLACKJACK || dealer.hand_value >= MINIMUM_TOTAL
@@ -483,7 +485,7 @@ class Game
   end
 
   def update_display
-    system 'clear' or system 'cls'
+    clear_screen
     display_top_line
     player_hands.each_with_index do |hand, hand_num|
       display_card_labels(hand, hand_num)
@@ -542,11 +544,13 @@ class Game
     player_sliding = dealer_sliding = false
     if hand.active && hand == current_player && hand.cards.size > 1
       player_sliding = sliding_status
-    elsif player_hands.all? { |hand| !hand.active } && !hide_dealer_card?
+    elsif player_hands.all? { |each_hand| !each_hand.active } && !hide_dealer_card?
       dealer_sliding = sliding_status
     end
     hand.compile_hand_lines(player_hands, dealer, player_sliding, false)
-    dealer.compile_hand_lines(player_hands, dealer, dealer_sliding, hide_dealer_card?) if hand == player
+    if hand == player
+      dealer.compile_hand_lines(player_hands, dealer, dealer_sliding, hide_dealer_card?)
+    end
   end
 
   def hide_dealer_card?
@@ -554,6 +558,10 @@ class Game
     player_hands.all? { |hand| hand.hand_value > BLACKJACK } || 
     player_hands.all? { |hand| hand.hand_value == BLACKJACK && hand.cards.length == 2} &&
     dealer.cards[1].value < 10
+  end
+
+  def clear_screen
+    system 'clear' or system 'cls'
   end
 
    def final_message
